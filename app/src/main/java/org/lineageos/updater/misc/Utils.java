@@ -58,6 +58,9 @@ import java.util.zip.ZipFile;
 public class Utils {
 
     private static final String TAG = "Utils";
+    private static final String MAINTAINER_PROP = "ro.sakura.maintainer";
+    private static final String MAINTAINER_NAME = SystemProperties.get(MAINTAINER_PROP);
+    private static String mMaintainer;
 
     private Utils() {
     }
@@ -81,6 +84,7 @@ public class Utils {
         update.setFileSize(object.getLong("size"));
         update.setDownloadUrl(object.getString("url"));
         update.setVersion(object.getString("version"));
+        mMaintainer = object.getString("maintainer");
         return update;
     }
 
@@ -140,7 +144,8 @@ public class Utils {
             }
             try {
                 UpdateInfo update = parseJsonUpdate(updatesList.getJSONObject(i));
-                if (!compatibleOnly || isCompatible(update)) {
+                if ((!compatibleOnly || isCompatible(update)) 
+                    && mMaintainer.equals(MAINTAINER_NAME)) {
                     updates.add(update);
                 } else {
                     Log.d(TAG, "Ignoring incompatible update " + update.getName());
@@ -406,5 +411,9 @@ public class Utils {
 
     public static boolean isRecoveryUpdateExecPresent() {
         return new File(Constants.UPDATE_RECOVERY_EXEC).exists();
+    }
+
+    public static String getMaintainer() {
+        return mMaintainer;
     }
 }
